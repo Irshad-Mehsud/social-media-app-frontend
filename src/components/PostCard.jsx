@@ -1,13 +1,46 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, MessageCircle, Send } from "lucide-react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+// import { getAllPosts } from "../api/postApi";
 
-const PostCard = ({ post }) => {
+const PostCard = ({post}) => {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(25); // demo count
   const [commentsCount, setCommentsCount] = useState(8);
   const [showCommentBox, setShowCommentBox] = useState(false);
   const [comment, setComment] = useState("");
-  const [comments, setComments] = useState([]); // local comment list
+  const [comments, setComments] = useState([]);
+  const createdAt = post.createdAt;
+  const timeAgo = dayjs(createdAt).fromNow();
+  // const [post, setPost] = useState({}); // changed from [] to {}
+
+  // useEffect(() => {
+  //   let ignore = false;
+
+  //   const fetchPosts = async () => {
+  //     try {
+  //       const postsData = await getAllPosts();
+  //       console.log("✅ Posts data fetched:", postsData.data);
+
+  //       if (!ignore && postsData.data.length > 0) {
+  //         setPost(postsData.data[0]); // only set once
+  //       }
+  //     } catch (error) {
+  //       console.error("❌ Error fetching posts:", error);
+  //     }
+  //   };
+
+  //   fetchPosts();
+
+  //   // cleanup to avoid double fetch in Strict Mode
+  //   return () => {
+  //     ignore = true;
+  //   };
+  // }, []);
+
+  console.log("📦 Current post state:", post);
 
   const handleLike = () => {
     setLiked(!liked);
@@ -27,18 +60,21 @@ const PostCard = ({ post }) => {
       {/* User Info */}
       <div className="flex items-center gap-3">
         <img
-          src={post.user?.profilePicture || "https://randomuser.me/api/portraits/men/32.jpg"}
-          alt={post.user?.name}
+          src={
+            post.user?.profilePicture ||
+            "https://randomuser.me/api/portraits/men/32.jpg"
+          }
+          alt={post.user?.name || "User"}
           className="w-10 h-10 rounded-full object-cover"
         />
         <div>
           <h3 className="font-semibold text-gray-800">{post.user?.name}</h3>
-          <p className="text-xs text-gray-500">Just now</p>
+          <p className="text-xs text-gray-500">{timeAgo}</p>
         </div>
       </div>
 
       {/* Caption */}
-      <p className="text-gray-700 mt-3">{post.caption}</p>
+      <p className="text-gray-700 mt-3">{post.desc}</p>
 
       {/* Post Image */}
       {post.image && (
@@ -94,7 +130,8 @@ const PostCard = ({ post }) => {
           <div className="mt-3 space-y-2">
             {comments.map((c, i) => (
               <p key={i} className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
-                <span className="font-semibold">{post.user?.name || "User"}:</span> {c}
+                <span className="font-semibold">{post.user?.name || "User"}:</span>{" "}
+                {c}
               </p>
             ))}
           </div>

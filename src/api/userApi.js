@@ -3,7 +3,7 @@ import axiosInstance from "./axiosConfig";
 // Register a new user
 const registerUser = async (userData) => {
   const { data } = await axiosInstance.post("/auth/register", userData);
-  return data;
+  return data; 
 };
 
 // Login user
@@ -13,9 +13,9 @@ const loginUser = async (credentials) => {
 };
 
 // Get user profile by ID
-const getUserProfile = async (userId) => {
-  const { data } = await axiosInstance.get(`/users/${userId}`);
-  return data;
+const getCurrentUser = async () => {
+  const response = await axiosInstance.get("/auth/me");
+  return response.data.data; // only return the user object
 };
 
 // Follow / Unfollow a user
@@ -39,7 +39,7 @@ const updateUserProfile = async (userId, updatedData) => {
 export {
   registerUser,
   loginUser,
-    getUserProfile,
+    getCurrentUser,
     toggleFollowUser,
     getSuggestedUsers,
     updateUserProfile

@@ -1,31 +1,52 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { NotificationProvider } from "./context/NotificationContext"; // import provider
-import Home from "./pages/Home";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import PrivateRoute from "./routes/PrivateRoute";
+import PublicRoute from "./routes/PublicRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import PrivateRoute from "./routes/PrivateRoute";
+import PostForm from "./components/PostForm";
+import Home from "./pages/Home";
 
 function App() {
   return (
-    <AuthProvider>
-      <NotificationProvider> {/* wrap here */}
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <Home />
-                </PrivateRoute>
-              }
-            />
-          </Routes>
-        </Router>
-      </NotificationProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/create-post"
+          element={
+            <PrivateRoute> 
+              <PostForm />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Private Routes */}
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Home />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
