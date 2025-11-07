@@ -18,15 +18,27 @@ const getCurrentUser = async () => {
   return response.data.data; // only return the user object
 };
 
+// Get user profile by ID
+const getUserById = async (userId) => {
+  const response = await axiosInstance.get(`/auth/${userId}`);
+  return response.data.data; // assuming backend returns { data: user }
+};
+
 // Follow / Unfollow a user
-const toggleFollowUser = async (userId) => {
-  const { data } = await axiosInstance.put(`/users/${userId}/follow`);
+const toggleFollowUser = async (targetUserId, currentUserId) => {
+  const { data } = await axiosInstance.put(`/auth/${targetUserId}/follow`, {
+   id: currentUserId, // 👈 match backend
+  });
+  console.log("Follow/unfollow response data:", data);
+  console.log("Current User ID:", currentUserId);
+  console.log("Target User ID:", targetUserId);
   return data;
 };
 
+
 // Get all suggested users (people you may know)
 const getSuggestedUsers = async () => {
-  const { data } = await axiosInstance.get("/users/suggestions");
+  const { data } = await axiosInstance.get("/auth");
   return data;
 };
 
@@ -40,6 +52,7 @@ export {
   registerUser,
   loginUser,
     getCurrentUser,
+    getUserById,
     toggleFollowUser,
     getSuggestedUsers,
     updateUserProfile
