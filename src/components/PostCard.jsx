@@ -1,56 +1,39 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Heart, MessageCircle, Send } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import axios from "axios";
 dayjs.extend(relativeTime);
-// import { getAllPosts } from "../api/postApi";
 
-const PostCard = ({post}) => {
+const PostCard = ({ post }) => {
   const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(25); // demo count
-  const [commentsCount, setCommentsCount] = useState(8);
+  const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
+  const [commentsCount, setCommentsCount] = useState(post.comments?.length || 0);
   const [showCommentBox, setShowCommentBox] = useState(false);
   const [comment, setComment] = useState("");
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState(post.comments || []);
   const createdAt = post.createdAt;
   const timeAgo = dayjs(createdAt).fromNow();
-  // const [post, setPost] = useState({}); // changed from [] to {}
+  const currentUserId = localStorage.getItem("userId");
 
-  // useEffect(() => {
-  //   let ignore = false;
+  const handleLike = async () => {
+    try {
+      const res = await axios.put(
+        `http://localhost:5000/api/posts/${post._id}/likes`,
+        { userId: currentUserId }
+      );
 
-  //   const fetchPosts = async () => {
-  //     try {
-  //       const postsData = await getAllPosts();
-  //       console.log("✅ Posts data fetched:", postsData.data);
-
-  //       if (!ignore && postsData.data.length > 0) {
-  //         setPost(postsData.data[0]); // only set once
-  //       }
-  //     } catch (error) {
-  //       console.error("❌ Error fetching posts:", error);
-  //     }
-  //   };
-
-  //   fetchPosts();
-
-  //   // cleanup to avoid double fetch in Strict Mode
-  //   return () => {
-  //     ignore = true;
-  //   };
-  // }, []);
-
-  console.log("📦 Current post state:", post);
-
-  const handleLike = () => {
-    setLiked(!liked);
-    setLikesCount(liked ? likesCount - 1 : likesCount + 1);
+      setLiked(res.data.liked);
+      setLikesCount(res.data.likesCount);
+    } catch (err) {
+      console.error("Error liking post:", err);
+    }
   };
 
   const handleCommentSubmit = (e) => {
     e.preventDefault();
     if (!comment.trim()) return;
-    setComments([...comments, comment]);
+    setComments([...comments, { user: { name: "You" }, text: comment }]);
     setComment("");
     setCommentsCount(commentsCount + 1);
   };
@@ -76,13 +59,21 @@ const PostCard = ({post}) => {
       {/* Caption */}
       <p className="text-gray-700 mt-3">{post.desc}</p>
 
-      {/* Post Image */}
-      {post.image && (
-        <img
-          src={post.image}
-          alt="Post"
-          className="rounded-xl mt-3 w-full object-cover max-h-96"
-        />
+      {/* Media */}
+      {post.mediaUrl && (
+        post.mediaType === "video" ? (
+          <video
+            src={post.mediaUrl}
+            controls
+            className="rounded-xl mt-3 w-full max-h-96 object-cover"
+          />
+        ) : (
+          <img
+            src={post.mediaUrl}
+            alt="Post"
+            className="rounded-xl mt-3 w-full max-h-96 object-cover"
+          />
+        )
       )}
 
       {/* Like / Comment buttons */}
@@ -129,9 +120,12 @@ const PostCard = ({post}) => {
           {/* Display Comments */}
           <div className="mt-3 space-y-2">
             {comments.map((c, i) => (
-              <p key={i} className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
-                <span className="font-semibold">{post.user?.name || "User"}:</span>{" "}
-                {c}
+              <p
+                key={i}
+                className="text-sm text-gray-700 bg-gray-50 px-3 py-2 rounded-lg"
+              >
+                <span className="font-semibold">{c.user?.name || "User"}:</span>{" "}
+                {c.text || c}
               </p>
             ))}
           </div>

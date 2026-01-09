@@ -4,6 +4,7 @@ import PublicRoute from "./routes/PublicRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PostForm from "./components/PostForm";
+import ProfileCard from "./components/ProfileCard";
 import Home from "./pages/Home";
 
 function App() {
@@ -19,6 +20,14 @@ function App() {
             </PublicRoute>
           }
         />
+        <Route
+          path="/profile/:userId"
+          element={ 
+            <PrivateRoute>
+              <ProfileCard />
+            </PrivateRoute>
+          }
+        />  
         <Route
           path="/register"
           element={

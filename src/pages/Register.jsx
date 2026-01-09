@@ -16,20 +16,20 @@ const Register = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
-  // Handle text input
+  // Handle text input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle image upload to backend (then Cloudinary)
+  // Upload images to backend -> Cloudinary
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    const name = e.target.name;
+    const fieldName = e.target.name; // "profilePicture" or "coverPicture"
 
     if (!file) return;
 
     const formDataFile = new FormData();
-    formDataFile.append("image", file);
+    formDataFile.append("file", file); // backend expects "file"
 
     try {
       setUploading(true);
@@ -41,10 +41,10 @@ const Register = () => {
       const data = await res.json();
 
       if (data.url) {
-        setFormData((prev) => ({ ...prev, [name]: data.url }));
-        showNotification("success", `${name} uploaded successfully!`);
+        setFormData((prev) => ({ ...prev, [fieldName]: data.url }));
+        showNotification("success", `${fieldName} uploaded successfully!`);
       } else {
-        showNotification("error", "File upload failed!");
+        showNotification("error", data.error || "File upload failed!");
       }
     } catch (error) {
       console.error("Upload error:", error);
@@ -54,12 +54,12 @@ const Register = () => {
     }
   };
 
-  // Handle registration submit
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.profilePicture || !formData.coverPicture) {
-      showNotification("error", "Please upload both images!");
+      showNotification("error", "Please upload both profile and cover pictures!");
       return;
     }
 
@@ -68,13 +68,13 @@ const Register = () => {
       showNotification("success", "User registered successfully!");
       navigate("/login");
     } catch (error) {
-      showNotification("error", "Registration failed!");
-      console.error(error.message);
+      console.error(error);
+      showNotification("error", error?.message || "Registration failed!");
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       <div className="bg-white shadow-xl rounded-2xl p-8 w-[400px]">
         <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
           Create Account
